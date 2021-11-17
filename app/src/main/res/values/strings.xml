@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">My Application Smartplate</string>
+    <string name="votre_repas">Votre repas</string>
+    <string name="prendre_photo">Prendre photo</string>
+    <string name="photo_repas">Photo_repas</string>
+    <string name="reconnaissance">Reconnaissance</string>
+    <string name="textview">TextView</string>
+    <string name="energie">Energie</string>
+    <string name="glucides">Glucides</string>
+    <string name="proteine">Proteine</string>
+    <string name="lipides">Lipides</string>
+    <string name="string_lipides" />
+</resources>
