@@ -33,11 +33,6 @@
         tools:ignore="ImageContrastCheck"
         tools:srcCompat="@tools:sample/avatars" />
 
-    <ListView
-        android:id="@+id/list_ble_device"
-        android:layout_width="match_parent"
-        android:layout_height="57dp" />
-
     <Button
         android:id="@+id/button_take_pic"
         android:layout_width="253dp"
@@ -58,6 +53,6 @@
         android:layout_width="253dp"
         android:layout_height="67dp"
         android:layout_gravity="center"
-        android:text="Rechecher assiette" />
+        android:text="@string/rechecher_assiette" />
 
 </LinearLayout>
