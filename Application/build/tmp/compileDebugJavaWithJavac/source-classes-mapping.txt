@@ -1,0 +1,2 @@
+com/example/android/bluetoothadvertisements/BuildConfig.java
+ com.example.android.bluetoothadvertisements.BuildConfig

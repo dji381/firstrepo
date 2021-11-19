@@ -55,4 +55,12 @@
         android:layout_gravity="center"
         android:text="@string/rechecher_assiette" />
 
+    <TextView
+        android:id="@+id/bluetooth_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="resultat bluetooth"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
 </LinearLayout>

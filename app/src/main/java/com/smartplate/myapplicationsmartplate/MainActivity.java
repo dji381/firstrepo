@@ -15,6 +15,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -45,6 +47,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,18 +60,21 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity implements alimentAdapter.RecyclerViewClickListener {
+public class MainActivity extends AppCompatActivity implements alimentAdapter.RecyclerViewClickListener,BLEControllerListener {
     private TextView RepasDescription;
+    private TextView logView;
     private ImageView PhotoRepas;
     private Button ButtonTakePic;
+    private Button buttonScanBle;
     private Button ButtonReco;
     private String photoPath;
     private String reponseAPI;
     private RecyclerView mRecyclerView;
     private List<Aliments>aliments1;
     private alimentAdapter monAdapter;
+    private BLEController bleController;
     private final int STORAGE_PERMISSION_CODE = 1;
-    ActivityResultLauncher<Intent> photoActivityResultLauncher = registerForActivityResult(
+    private ActivityResultLauncher<Intent> photoActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
@@ -78,6 +84,14 @@ public class MainActivity extends AppCompatActivity implements alimentAdapter.Re
                     Bitmap image = BitmapFactory.decodeFile(photoPath);
                     //afficher l'image
                     PhotoRepas.setImageBitmap(rotateImage(image));
+                }
+            });
+    private ActivityResultLauncher<Intent> bleActivityResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    // There are no request codes
+                    Intent data = result.getData();
                 }
             });
 
@@ -96,6 +110,13 @@ public class MainActivity extends AppCompatActivity implements alimentAdapter.Re
         ButtonTakePic = findViewById(R.id.button_take_pic);
         ButtonReco = findViewById(R.id.Reco);
         mRecyclerView = (RecyclerView)findViewById(R.id.affichageRepas);
+        logView = (TextView)findViewById(R.id.bluetooth_result);
+        logView.setMovementMethod(new ScrollingMovementMethod());
+        buttonScanBle = (Button)findViewById(R.id.scan_ble);
+        bleController = BLEController.getInstance(this);
+        checkBLESupport();
+        checkPermissions();
+
         /**
         *appel de la methode qui lance l'appareil photo en cliquant sur le boutton
         */
@@ -312,6 +333,73 @@ public class MainActivity extends AppCompatActivity implements alimentAdapter.Re
         Intent intent = new Intent(MainActivity.this,AnalyseRepasActivity.class);
         intent.putExtra("resultat_reco",aliments1.get(position));
         startActivity(intent);
+
+    }
+    //method to easily log data to the text view
+    private void log(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                logView.setText(logView.getText() + "\n" + text);
+            }
+        });
+    }
+    //check ble on device
+    private void checkBLESupport() {
+        // Check if BLE is supported on the device.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "BLE not supported!", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        checkPermissions();
+        if(!BluetoothAdapter.getDefaultAdapter().isEnabled()){
+            Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            bleActivityResult.launch(enableBTIntent);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.bleController.addBLEControllerListener(this);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            log("[BLE]\tSearching for BlueCArd...");
+            this.bleController.init();
+        }
+
+    }
+
+    private void checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            log("\"Access Fine Location\" permission not granted yet!");
+            log("Whitout this permission Blutooth devices cannot be searched!");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    42);
+        }
+    }
+
+    @Override
+    public void BLEControllerConnected() {
+        log("[BLE]\tConnected");
+    }
+
+    @Override
+    public void BLEControllerDisconnected() {
+        log("[BLE]\tDisconnected");
+
+    }
+
+    @Override
+    public void BLEDeviceFound(String name, String address) {
+        log("Device " + name + " found with address " + address);
 
     }
 }
