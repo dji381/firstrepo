@@ -110,9 +110,9 @@ public class MainActivity extends AppCompatActivity implements alimentAdapter.Re
         ButtonTakePic = findViewById(R.id.button_take_pic);
         ButtonReco = findViewById(R.id.Reco);
         mRecyclerView = (RecyclerView)findViewById(R.id.affichageRepas);
-        logView = (TextView)findViewById(R.id.bluetooth_result);
+        logView = findViewById(R.id.bluetooth_result);
         logView.setMovementMethod(new ScrollingMovementMethod());
-        buttonScanBle = (Button)findViewById(R.id.scan_ble);
+        buttonScanBle = findViewById(R.id.scan_ble);
         bleController = BLEController.getInstance(this);
         checkBLESupport();
         checkPermissions();
