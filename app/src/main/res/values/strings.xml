@@ -11,4 +11,5 @@
     <string name="lipides">Lipides</string>
     <string name="string_lipides" />
     <string name="rechecher_assiette">Rechecher assiette</string>
+    <string name="resultat_bluetooth">resultat bluetooth</string>
 </resources>
